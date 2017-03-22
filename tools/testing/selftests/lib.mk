@@ -3,7 +3,7 @@
 ifneq ($(LLVM),)
 CC := clang
 else
-CC := $(CROSS_COMPILE)gcc
+CC ?= $(CROSS_COMPILE)gcc
 endif
 
 ifeq (0,$(MAKELEVEL))
