@@ -7,7 +7,7 @@ TEST_PROGS := gpio-mockup.sh
 TEST_FILES := gpio-mockup-sysfs.sh
 TEST_PROGS_EXTENDED := gpio-mockup-chardev
 
-GPIODIR := ../../../gpio
+GPIODIR := $(realpath ../../../gpio)
 GPIOOBJ := gpio-utils.o
 GPIOINC := gpio.h
 
@@ -15,7 +15,7 @@ all: $(GPIOINC) $(TEST_PROGS_EXTENDED)
 
 override define CLEAN
 	$(RM) $(TEST_PROGS_EXTENDED)
-	$(MAKE) -C $(GPIODIR) clean
+	$(MAKE) -C $(GPIODIR) OUTPUT=$(GPIODIR)/ clean
 endef
 
 include ../lib.mk
@@ -23,7 +23,7 @@ include ../lib.mk
 $(TEST_PROGS_EXTENDED): $(GPIODIR)/$(GPIOOBJ)
 
 $(GPIODIR)/$(GPIOOBJ):
-	$(MAKE) -C $(GPIODIR)
+	$(MAKE) OUTPUT=$(GPIODIR)/ -C $(GPIODIR)
 
 $(GPIOINC):
 	$(MAKE) -C ../../../.. headers_install
