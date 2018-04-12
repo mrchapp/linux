@@ -20,10 +20,10 @@ endef
 
 include ../lib.mk
 
-$(TEST_PROGS_EXTENDED): $(GPIODIR)/$(GPIOOBJ)
+$(TEST_PROGS_EXTENDED): $(GPIOOBJ)
 
-$(GPIODIR)/$(GPIOOBJ):
-	$(MAKE) OUTPUT=$(GPIODIR)/ -C $(GPIODIR)
+$(GPIOOBJ):
+	$(MAKE) OUTPUT=$(realpath .)/ -C $(GPIODIR)
 
 $(GPIOINC):
 	$(MAKE) -C ../../../.. headers_install
