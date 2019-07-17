@@ -59,12 +59,16 @@ run_one()
 
 run_many()
 {
-	echo "TAP version 13"
 	DIR=$(basename "$PWD")
 	test_num=0
 	total=$(echo "$@" | wc -w)
+	[ $total -eq 0 ] && return
+
+	echo "TAP version 13"
 	echo "1..$total"
+
 	for TEST in "$@"; do
+		[ -z "$TEST" ] && continue
 		BASENAME_TEST=$(basename $TEST)
 		test_num=$(( test_num + 1 ))
 		if [ -n "$per_test_logging" ]; then
