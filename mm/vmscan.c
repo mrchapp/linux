@@ -2356,8 +2356,7 @@ out:
 		unsigned long protection;
 
 		lruvec_size = lruvec_lru_size(lruvec, lru, sc->reclaim_idx);
-		protection = mem_cgroup_protection(sc->target_mem_cgroup,
-						   memcg,
+		protection = mem_cgroup_protection(memcg,
 						   sc->memcg_low_reclaim);
 
 		if (protection) {
