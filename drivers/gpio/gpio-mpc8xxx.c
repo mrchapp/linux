@@ -374,7 +374,7 @@ static int mpc8xxx_probe(struct platform_device *pdev)
 	    of_device_is_compatible(np, "fsl,ls1088a-gpio"))
 		gc->write_reg(mpc8xxx_gc->regs + GPIO_IBE, 0xffffffff);
 
-	ret = gpiochip_add_data(gc, mpc8xxx_gc);
+	ret = devm_gpiochip_add_data(&pdev->dev, gc, mpc8xxx_gc);
 	if (ret) {
 		pr_err("%pOF: GPIO chip registration failed with status %d\n",
 		       np, ret);
@@ -418,8 +418,6 @@ static int mpc8xxx_remove(struct platform_device *pdev)
 		irq_set_chained_handler_and_data(mpc8xxx_gc->irqn, NULL, NULL);
 		irq_domain_remove(mpc8xxx_gc->irq);
 	}
-
-	gpiochip_remove(&mpc8xxx_gc->gc);
 
 	return 0;
 }
