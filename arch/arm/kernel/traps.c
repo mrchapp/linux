@@ -89,8 +89,7 @@ void dump_backtrace_entry(unsigned long where, unsigned long from,
 	printk("%s %ps from %pS\n", loglvl, (void *)where, (void *)from);
 #endif
 
-	if (!IS_ENABLED(CONFIG_UNWINDER_ARM) &&
-	    in_entry_text(from) && end <= ALIGN(frame, THREAD_SIZE))
+	if (in_entry_text(from) && end <= ALIGN(frame, THREAD_SIZE))
 		dump_mem(loglvl, "Exception stack", frame + 4, end);
 }
 
