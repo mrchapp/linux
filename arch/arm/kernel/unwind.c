@@ -33,6 +33,8 @@
 #include <asm/traps.h>
 #include <asm/unwind.h>
 
+#include "reboot.h"
+
 /* Dummy functions to avoid linker complaints */
 void __aeabi_unwind_cpp_pr0(void)
 {
@@ -262,9 +264,6 @@ static int unwind_exec_pop_subset_r4_to_r13(struct unwind_ctrl_block *ctrl,
 	}
 	if (!load_sp) {
 		ctrl->vrs[SP] = (unsigned long)vsp;
-	} else {
-		ctrl->sp_low = ctrl->vrs[SP];
-		ctrl->sp_high = ALIGN(ctrl->sp_low, THREAD_SIZE);
 	}
 
 	return URC_OK;
@@ -323,7 +322,6 @@ static int unwind_exec_insn(struct unwind_ctrl_block *ctrl)
 		ctrl->vrs[SP] += ((insn & 0x3f) << 2) + 4;
 	else if ((insn & 0xc0) == 0x40) {
 		ctrl->vrs[SP] -= ((insn & 0x3f) << 2) + 4;
-		ctrl->sp_low = ctrl->vrs[SP];
 	} else if ((insn & 0xf0) == 0x80) {
 		unsigned long mask;
 
@@ -341,8 +339,6 @@ static int unwind_exec_insn(struct unwind_ctrl_block *ctrl)
 	} else if ((insn & 0xf0) == 0x90 &&
 		   (insn & 0x0d) != 0x0d) {
 		ctrl->vrs[SP] = ctrl->vrs[insn & 0x0f];
-		ctrl->sp_low = ctrl->vrs[SP];
-		ctrl->sp_high = ALIGN(ctrl->sp_low, THREAD_SIZE);
 	} else if ((insn & 0xf0) == 0xa0) {
 		ret = unwind_exec_pop_r4_to_rN(ctrl, insn);
 		if (ret)
@@ -451,6 +447,16 @@ int unwind_frame(struct stackframe *frame)
 	}
 
 	ctrl.check_each_pop = 0;
+
+	if (prel31_to_addr(&idx->addr_offset) == (u32)&call_with_stack) {
+		/*
+		 * call_with_stack() is the only place where we permit SP to
+		 * jump from one stack to another, and since we know it is
+		 * guaranteed to happen, set up the SP bounds accordingly.
+		 */
+		ctrl.sp_low = frame->fp;
+		ctrl.sp_high = ALIGN(frame->fp, THREAD_SIZE);
+	}
 
 	while (ctrl.entries > 0) {
 		int urc;
