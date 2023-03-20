@@ -396,6 +396,10 @@ mt7530_pad_clk_setup(struct dsa_switch *ds, int mode)
 		break;
 	case PHY_INTERFACE_MODE_TRGMII:
 		trgint = 1;
+		if (xtal == HWTRAP_XTAL_25MHZ)
+			ssc_delta = 0x57;
+		else
+			ssc_delta = 0x87;
 		if (priv->id == ID_MT7621) {
 			/* PLL frequency: 150MHz: 1.2GBit */
 			if (xtal == HWTRAP_XTAL_40MHZ)
@@ -413,11 +417,6 @@ mt7530_pad_clk_setup(struct dsa_switch *ds, int mode)
 		dev_err(priv->dev, "xMII mode %d not supported\n", mode);
 		return -EINVAL;
 	}
-
-	if (xtal == HWTRAP_XTAL_25MHZ)
-		ssc_delta = 0x57;
-	else
-		ssc_delta = 0x87;
 
 	mt7530_rmw(priv, MT7530_P6ECR, P6_INTF_MODE_MASK,
 		   P6_INTF_MODE(trgint));
